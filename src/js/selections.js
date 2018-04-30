@@ -1,7 +1,7 @@
 import isEqual from 'deep-equal';
 import _ from 'lodash';
 // helpers
-import * as strings from './utils/string';
+import * as stringUtils from './utils/string';
 
 /**
  * @description - Splice string into array of ranges, flagging what is selected
@@ -23,8 +23,8 @@ export const spliceStringOnRanges = (string, ranges) => {
     const shiftedRangeEnd = range[1] + 1 - rangeShift; // range end - rangeShift + 1 to include last character
     const selection = remainingString.slice(shiftedRangeStart, shiftedRangeEnd); // save the text in the selection
     const stringBeforeRange = string.slice(0, range[0]);
-    const occurrence = strings.occurrencesInString(stringBeforeRange, selection) + 1;
-    const occurrences = strings.occurrencesInString(string, selection);
+    const occurrence = stringUtils.occurrencesInString(stringBeforeRange, selection) + 1;
+    const occurrences = stringUtils.occurrencesInString(string, selection);
     const selectionObject = {
       text: selection,
       selected: true,
@@ -126,9 +126,9 @@ export const rangesToSelections = (string, ranges) => {
     const length = end - start + 1; // get the length of the sub string
     const subString = string.substr(start, length); // get text of the sub string
     const beforeText = string.substr(0, start); // get the string prior to the range
-    const beforeMatches = strings.occurrencesInString(beforeText, subString); // get occurrences prior to range
+    const beforeMatches = stringUtils.occurrencesInString(beforeText, subString); // get occurrences prior to range
     const occurrence = beforeMatches + 1; // get number of this occurrence
-    const occurrences = strings.occurrencesInString(string, subString); // get occurrences in string
+    const occurrences = stringUtils.occurrencesInString(string, subString); // get occurrences in string
     const selection = {
       text: subString,
       occurrence: occurrence,

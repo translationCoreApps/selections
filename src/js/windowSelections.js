@@ -1,4 +1,4 @@
-import * as strings from './utils/string';
+import * as stringUtils from './utils/string';
 
 /**
  * @description - Gets the selection object from the currently selected text from the Web UI
@@ -12,7 +12,7 @@ export const getSelectionFromCurrentWindowSelection = (entireText) => {
   const selectedText = getSelectedTextFromWindowSelection(windowSelection);
   const prescedingText = getPrescedingTextFromWindowSelection(windowSelection);
   // Some edge cases leave a weird selection remaining, let's clean up.
-  selection = strings.generateSelection(selectedText, prescedingText, entireText);
+  selection = stringUtils.generateSelection(selectedText, prescedingText, entireText);
   window.getSelection().empty();
   return selection;
 };
@@ -154,13 +154,13 @@ export function shouldRenderEllipsis(selections, verseText) {
 export const generateSelection = (selectedText, prescedingText, entireText) => {
   let selection = {}; // response
   // replace more than one contiguous space with a single one since HTML/selection only renders 1
-  entireText = strings.normalizeString(entireText);
+  entireText = stringUtils.normalizeString(entireText);
   // get the occurrences before this one
-  let prescedingOccurrences = strings.occurrencesInString(prescedingText, selectedText);
+  let prescedingOccurrences = stringUtils.occurrencesInString(prescedingText, selectedText);
   // calculate this occurrence number by adding it to the presceding ones
   let occurrence = prescedingOccurrences + 1;
   // get the total occurrences from the verse
-  let occurrences = strings.occurrencesInString(entireText, selectedText);
+  let occurrences = stringUtils.occurrencesInString(entireText, selectedText);
   selection = {
     text: selectedText,
     occurrence: occurrence,
