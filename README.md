@@ -1,2 +1,2 @@
 # selections
-Logic for handling selections
+A library for handling selections in tC
