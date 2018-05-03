@@ -1,4 +1,4 @@
-import * as selectionsModule from './selections';
+import * as selectionsModule from '../src/js/selections';
 
 describe('selectionsModule.spliceStringOnRanges', () => {
     const string = "01 234 56789qwertyuiopasdfghjklzxcvbnmtyui01 234 567890";
@@ -388,3 +388,43 @@ describe('selectionsModule.addSelectionToSelections', () => {
         expect(expected).toEqual(output);
     });
 });
+
+describe('selections.generateSelection', () => {
+    it('should return a selection for a single character found more than once', () => {
+      const selectedText = 's';
+      const prescedingText = 'Here is ';
+      const entireText = 'Here is some text.';
+      const output = selectionsModule.generateSelection(selectedText, prescedingText, entireText);
+      const expected = {
+        text: 's',
+        occurrence: 2,
+        occurrences: 2
+      };
+        expect(expected).toEqual(output);
+    });
+    it('should return a selection for a single space found more than once', () => {
+      const selectedText = ' ';
+      const prescedingText = 'Here is';
+      const entireText = 'Here is some text.';
+      const output = selectionsModule.generateSelection(selectedText, prescedingText, entireText);
+      const expected = {
+        text: ' ',
+        occurrence: 2,
+        occurrences: 3
+      };
+        expect(expected).toEqual(output);
+    });
+    it('should return a selection for a single word found once', () => {
+      const selectedText = 'Here';
+      const prescedingText = '';
+      const entireText = 'Here is some text.';
+      const output = selectionsModule.generateSelection(selectedText, prescedingText, entireText);
+      const expected = {
+        text: 'Here',
+        occurrence: 1,
+        occurrences: 1
+      };
+        expect(expected).toEqual(output);
+    });
+  });
+  

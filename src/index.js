@@ -7,4 +7,5 @@ export const occurrencesInString = selections.occurrencesInString;
 export const optimizeSelections = selections.optimizeSelections;
 export const checkSelectionOccurrences = selections.checkSelectionOccurrences;
 export const getQuoteOccurrencesInVerse = selections.getQuoteOccurrencesInVerse;
+export const generateSelection = selections.generateSelection;
 export default selections;
