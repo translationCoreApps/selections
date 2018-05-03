@@ -8,10 +8,10 @@ import { occurrencesInString } from 'tc-strings';
  * @returns {array} - array of objects [obj,...]
  */
 export const spliceStringOnRanges = (string, ranges) => {
-  var selectionArray = []; // response
-  var remainingString = string;
+  let selectionArray = []; // response
+  let remainingString = string;
   // shift the range since the loop is destructive by working on the remainingString and not original string
-  var rangeShift = 0; // start the range shift at the first character
+  let rangeShift = 0; // start the range shift at the first character
   ranges.forEach(function(range) {
     const firstCharacterPosition = range[0] - rangeShift; // original range start - the rangeShift
     const beforeSelection = remainingString.slice(0, firstCharacterPosition); // save all the text before the selection
@@ -51,7 +51,7 @@ export const spliceStringOnRanges = (string, ranges) => {
  * @returns {array} - array of range objects
  */
 export const selectionsToRanges = (string, selections) => {
-  var ranges = []; // response
+  let ranges = []; // response
   selections.forEach(selection => {
     if (string && string.includes(selection.text)) { // conditions to prevent errors
       const splitArray = string.split(selection.text); // split the string to get the text between occurrences
@@ -72,7 +72,7 @@ export const selectionsToRanges = (string, selections) => {
  * @returns {array} - array of objects
  */
 export const selectionsToStringSplices = (string, selections) => {
-  var splicedStringArray = []; // response
+  let splicedStringArray = []; // response
   selections = optimizeSelections(string, selections); // optimize them before converting
   const ranges = selectionsToRanges(string, selections); // convert the selections to ranges
   splicedStringArray = spliceStringOnRanges(string, ranges); // splice the string on the ranges
@@ -84,17 +84,19 @@ export const selectionsToStringSplices = (string, selections) => {
  * @param {array}  ranges - array of ranges [[int,int],...]
  * @returns {array} - array of optimized ranges [[int,int],...]
  */
-export const optimizeRanges = (ranges) => {
+export const optimizeRanges = ranges => {
   let optimizedRanges = []; // response
   if (ranges.length === 1) return ranges; // if there's only one, return it
-  ranges = _.sortBy(ranges, function (range) { return range[1] }); // order ranges by end char index as secondary
-  ranges = _.sortBy(ranges, function (range) { return range[0] }); // order ranges by start char index as primary
+  ranges = _.sortBy(ranges, range => range[1]); // order ranges by end char index as secondary
+  ranges = _.sortBy(ranges, range => range[0]); // order ranges by start char index as primary
   ranges = _.uniq(ranges); // remove duplicates
   // combine overlapping and contiguous ranges
   let runningRange = []; // the running range to merge overlapping and contiguous ranges
   ranges.forEach((currentRange, index) => {
-    const currentStart = currentRange[0], currentEnd = currentRange[1];
-    let runningStart = runningRange[0], runningEnd = runningRange[1];
+    const currentStart = currentRange[0];
+    const currentEnd = currentRange[1];
+    let runningStart = runningRange[0];
+    let runningEnd = runningRange[1];
     if (currentStart >= runningStart && currentStart <= runningEnd + 1) { // the start occurs in the running range and +1 handles contiguous
       if (currentEnd >= runningStart && currentEnd <= runningEnd) { // if the start occurs inside running range then let's check the end
         // if the end occurs inside the running range then it's inside it and doesn't matter
@@ -113,15 +115,36 @@ export const optimizeRanges = (ranges) => {
 };
 
 /**
+ * Splice string into array of substrings, flagging what is selected
+ * @param {string} string - text used to get the ranges of
+ * @param {array} selections - array of selections [obj,...]
+ * @return {array} - array of objects
+ */
+export const selectionArray = (string, selections) => {
+  let selectionArray = [];
+  let ranges = module.exports.selectionsToRanges(string, selections);
+  selectionArray = module.exports.spliceStringOnRanges(string, ranges);
+  return selectionArray;
+};
+//
+// Use the following lines to test the previous function
+// let string = "01 234 56789qwertyuiopasdfghjklzxcvbnmtyui01 234 567890"
+// let selections = [
+//   { text: '234', occurrence: 2, occurrences: 2 },
+// ]
+// console.log(module.exports.selectionArray(string, selections))
+
+/**
  * @description - This converts ranges to array of selection objects
  * @param {string} string - text used to get the ranges of
  * @param {array} ranges - array of ranges [[int,int],...]
- * @returns {array} - array of selection objects
+ * @return {array} - array of selection objects
  */
 export const rangesToSelections = (string, ranges) => {
   let selections = [];
   ranges.forEach(range => {
-    const start = range[0], end = range[1]; // set the start and end point
+    const start = range[0]; // set the start point
+    const end = range[1]; // set the end point
     const length = end - start + 1; // get the length of the sub string
     const subString = string.substr(start, length); // get text of the sub string
     const beforeText = string.substr(0, start); // get the string prior to the range
@@ -149,11 +172,11 @@ export const rangesToSelections = (string, ranges) => {
 export const optimizeSelections = (string, selections) => {
   let optimizedSelections; // return
   // filter out the random clicks from the UI
-  selections = selections.filter( selection => {
+  selections = selections.filter(selection => {
     const blankSelection = { text: "", occurrence: 1, occurrences: 0 };
     return !isEqual(selection, blankSelection);
   });
-  var ranges = selectionsToRanges(string, selections); // get char ranges of each selection
+  let ranges = selectionsToRanges(string, selections); // get char ranges of each selection
   ranges = optimizeRanges(ranges); // optimize the ranges
   optimizedSelections = rangesToSelections(string, ranges); // convert optimized ranges into selections
   return optimizedSelections;
@@ -168,7 +191,8 @@ export const optimizeSelections = (string, selections) => {
 export const removeSelectionFromSelections = (selection, selections, string) => {
   selections = Array.from(selections);
   selections = selections.filter(_selection =>
-    !(_selection.occurrence === selection.occurrence && _selection.text === selection.text)
+    !(_selection.occurrence === selection.occurrence &&
+      _selection.text === selection.text)
   );
   selections = optimizeSelections(string, selections);
   return selections;
@@ -202,32 +226,33 @@ export const getQuoteOccurrencesInVerse = (string, subString) => {
       n += getQuoteOccurrencesInVerse(string, element.trim());
     });
     return n;
-  } else {
-    if (subString.includes('...')) subString = subString.replace('...', '.*');
-    const regex = new RegExp(`\\W+${subString}\\W+`,'g');
-    let matchedSubstring;
-    while ((matchedSubstring = regex.exec(string)) !== null) {
-      // This is necessary to avoid infinite loops with zero-width matchedSubstring
-      if (matchedSubstring.index === regex.lastIndex) {
-        regex.lastIndex++;
-      }
-      n++;
-    }
-    return n;
   }
+  if (subString.includes('...')) subString = subString.replace('...', '.*');
+  const regex = new RegExp(`\\W+${subString}\\W+`,'g');
+  let matchedSubstring;
+  while ((matchedSubstring = regex.exec(string)) !== null) {
+    // This is necessary to avoid infinite loops with zero-width matchedSubstring
+    if (matchedSubstring.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    n++;
+  }
+  return n;
 };
 
- /**
-  * @description Function that count occurrences of a substring in a string
-  * @param {String} string - The string to search in
-  * @param {String} subString - The sub string to search for
-  * @returns {Integer} - the count of the occurrences
-  * @see http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
-  * modified to fit our use cases, return zero for '' substring, and no use case for overlapping.
-  */
+/**
+ * @description Function that count occurrences of a substring in a string
+ * @param {String} string - The string to search in
+ * @param {String} subString - The sub string to search for
+ * @return {Integer} - the count of the occurrences
+ * @see http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+ * modified to fit our use cases, return zero for '' substring, and no use case for overlapping.
+ */
 export const occurrences = (string, subString) => {
   if (subString.length <= 0) return 0;
-  let n = 0, pos = 0, step = subString.length;
+  let n = 0;
+  let pos = 0;
+  let step = subString.length;
 // eslint-disable-next-line no-constant-condition
   while (true) {
     pos = string.indexOf(subString, pos);

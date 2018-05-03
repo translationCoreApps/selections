@@ -1,1 +1,10 @@
-export default require('./js/selections');
+const selections = require('./js/selections');
+export const addSelectionToSelections = selections.addSelectionToSelections; 
+export const removeSelectionFromSelections = selections.removeSelectionFromSelections;
+export const selectionsToStringSplices = selections.selectionsToStringSplices;
+export const selectionArray = selections.selectionArray;
+export const occurrencesInString = selections.occurrencesInString;
+export const optimizeSelections = selections.optimizeSelections;
+export const checkSelectionOccurrences = selections.checkSelectionOccurrences;
+export const getQuoteOccurrencesInVerse = selections.getQuoteOccurrencesInVerse;
+export default selections;
